@@ -1103,7 +1103,14 @@ textarea.form-control {
     flex: 1; /* Make 'Leave a Review' take remaining space but not squish others */
   }
   .work-grid { grid-template-columns: 1fr 1fr; }
-  .footer-grid { grid-template-columns: 1fr; }
+  .footer-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+  }
+  .footer-grid > div:first-child,
+  .footer-grid > div:last-child {
+    grid-column: 1 / -1;
+  }
   .footer-bottom { flex-direction: column; gap: 1rem; text-align: center; }
   .footer-credit { text-align: center; }
   .section { padding: 3rem 5%; }
