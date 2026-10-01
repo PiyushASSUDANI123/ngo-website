@@ -12,6 +12,7 @@ const Home = () => {
   const [reviews, setReviews] = useState([]);
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [reviewForm, setReviewForm] = useState({ name: '', review: '', rating: 5, role: 'Supporter' });
 
   useEffect(() => {
@@ -26,13 +27,16 @@ const Home = () => {
 
   const handleReviewSubmit = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
     try {
-      await axios.post(`${API}/website/reviews`, reviewForm);
+      await axios.post(`${API}/website/reviews`, reviewForm, { timeout: 10000 });
       setIsReviewModalOpen(false);
       setIsSuccessModalOpen(true);
       setReviewForm({ name: '', review: '', rating: 5, role: 'Supporter' });
     } catch (err) {
-      alert('Failed to submit review. Please try again.');
+      alert('Failed to submit review. The server might be unreachable right now.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -485,8 +489,10 @@ const Home = () => {
                 <textarea required value={reviewForm.review} onChange={e => setReviewForm({...reviewForm, review: e.target.value})} className="form-control" placeholder="Share your experience..." rows="4"></textarea>
               </div>
               <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
-                <button type="button" onClick={() => setIsReviewModalOpen(false)} className="btn-outline-dark" style={{ flex: 1, padding: '0.8rem', justifyContent: 'center' }}>Cancel</button>
-                <button type="submit" className="btn-gold" style={{ flex: 1, padding: '0.8rem', justifyContent: 'center' }}>Submit</button>
+                <button type="button" onClick={() => setIsReviewModalOpen(false)} className="btn-outline-dark" style={{ flex: 1, padding: '0.8rem', justifyContent: 'center' }} disabled={isSubmitting}>Cancel</button>
+                <button type="submit" className="btn-gold" style={{ flex: 1, padding: '0.8rem', justifyContent: 'center', opacity: isSubmitting ? 0.7 : 1 }} disabled={isSubmitting}>
+                  {isSubmitting ? 'Submitting...' : 'Submit'}
+                </button>
               </div>
             </form>
           </div>
