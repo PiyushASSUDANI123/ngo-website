@@ -875,24 +875,26 @@ textarea.form-control {
   background: #FAFCFF;
   border: 1px solid #E2E8F0;
   border-radius: 20px;
-  padding: 2.5rem;
+  padding: 2rem;
   position: relative;
+  overflow: hidden;
 }
 .quote-icon {
-  font-size: 3rem;
+  font-size: 5rem;
   color: #DE9E36;
-  opacity: 0.5;
+  opacity: 0.1;
   position: absolute;
-  top: 1.5rem;
-  left: 1.5rem;
+  top: -10px;
+  left: 10px;
+  z-index: 0;
 }
 .testimonial-card p {
   font-size: 1.1rem;
   font-style: italic;
   color: #3A4A60;
   line-height: 1.6;
-  margin-top: 2.5rem;
-  margin-bottom: 1.5rem;
+  margin-top: 0;
+  margin-bottom: 1rem;
   position: relative;
   z-index: 1;
 }
