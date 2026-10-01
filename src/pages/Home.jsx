@@ -29,7 +29,13 @@ const Home = () => {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      await axios.post(`${API}/website/reviews`, reviewForm, { timeout: 10000 });
+      const response = await axios.post(`${API}/website/reviews`, reviewForm, { timeout: 10000 });
+      
+      // Instantly update the UI with the new review!
+      if (response.data && response.data.review) {
+        setReviews(prev => [response.data.review, ...prev].slice(0, 10)); // Keep max 10 reviews
+      }
+
       setIsReviewModalOpen(false);
       setIsSuccessModalOpen(true);
       setReviewForm({ name: '', review: '', rating: 5, role: 'Supporter' });
