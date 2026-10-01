@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import axios from 'axios';
 import { HiOutlineLightBulb, HiOutlineHeart, HiHeart, HiOutlineUsers, HiOutlineHome } from 'react-icons/hi';
-import { FaBookOpen, FaPaintBrush, FaLightbulb, FaUsers, FaGraduationCap, FaQuoteLeft } from 'react-icons/fa';
+import { FaBookOpen, FaPaintBrush, FaLightbulb, FaUsers, FaGraduationCap, FaQuoteLeft, FaCheck, FaTimes } from 'react-icons/fa';
 import SEO from '../components/SEO';
 
 const API = import.meta.env.VITE_API_URL || 'https://envision.piyushassudani.in/api';
@@ -11,6 +11,7 @@ const API = import.meta.env.VITE_API_URL || 'https://envision.piyushassudani.in/
 const Home = () => {
   const [reviews, setReviews] = useState([]);
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
   const [reviewForm, setReviewForm] = useState({ name: '', review: '', rating: 5, role: 'Supporter' });
 
   useEffect(() => {
@@ -27,8 +28,8 @@ const Home = () => {
     e.preventDefault();
     try {
       await axios.post(`${API}/website/reviews`, reviewForm);
-      alert('Review submitted successfully! It will appear once approved by admin.');
       setIsReviewModalOpen(false);
+      setIsSuccessModalOpen(true);
       setReviewForm({ name: '', review: '', rating: 5, role: 'Supporter' });
     } catch (err) {
       alert('Failed to submit review. Please try again.');
@@ -459,7 +460,10 @@ const Home = () => {
       {/* Review Modal */}
       {isReviewModalOpen && (
         <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999 }}>
-          <div style={{ background: 'white', padding: '2rem', borderRadius: '15px', width: '90%', maxWidth: '500px' }}>
+          <div style={{ background: 'white', padding: '2rem', borderRadius: '15px', width: '90%', maxWidth: '500px', position: 'relative' }}>
+            <button onClick={() => setIsReviewModalOpen(false)} style={{ position: 'absolute', top: '15px', right: '15px', background: '#F1F5F9', border: 'none', borderRadius: '50%', width: '30px', height: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+              <FaTimes color="#5A6A80" />
+            </button>
             <h3 style={{ marginBottom: '1.5rem', fontSize: '1.5rem', color: '#031533' }}>Leave a Review</h3>
             <form onSubmit={handleReviewSubmit}>
               <div style={{ marginBottom: '1rem' }}>
@@ -481,10 +485,42 @@ const Home = () => {
                 <textarea required value={reviewForm.review} onChange={e => setReviewForm({...reviewForm, review: e.target.value})} className="form-control" placeholder="Share your experience..." rows="4"></textarea>
               </div>
               <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
-                <button type="button" onClick={() => setIsReviewModalOpen(false)} className="btn-outline-dark" style={{ flex: 1 }}>Cancel</button>
-                <button type="submit" className="btn-gold" style={{ flex: 1, justifyContent: 'center' }}>Submit</button>
+                <button type="button" onClick={() => setIsReviewModalOpen(false)} className="btn-outline-dark" style={{ flex: 1, padding: '0.8rem', justifyContent: 'center' }}>Cancel</button>
+                <button type="submit" className="btn-gold" style={{ flex: 1, padding: '0.8rem', justifyContent: 'center' }}>Submit</button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Success Modal */}
+      {isSuccessModalOpen && (
+        <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999 }}>
+          <div style={{ background: 'white', padding: '3rem 2rem', borderRadius: '20px', width: '90%', maxWidth: '450px', textAlign: 'center', position: 'relative', boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}>
+            <button onClick={() => setIsSuccessModalOpen(false)} style={{ position: 'absolute', top: '15px', right: '15px', background: '#F1F5F9', border: 'none', borderRadius: '50%', width: '35px', height: '35px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+              <FaTimes color="#5A6A80" />
+            </button>
+            <div style={{ margin: '0 auto 1.5rem', position: 'relative', display: 'inline-block' }}>
+              {/* Confetti decoration using pseudo-elements/spans */}
+              <div style={{ width: '80px', height: '80px', background: '#DE9E36', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 20px rgba(222, 158, 54, 0.4)' }}>
+                <FaCheck style={{ color: 'white', fontSize: '2.5rem' }} />
+              </div>
+              {/* Simple CSS shapes for confetti */}
+              <div style={{ position: 'absolute', top: '-10px', left: '-20px', width: '10px', height: '10px', background: '#DE9E36', borderRadius: '50%', opacity: 0.8 }}></div>
+              <div style={{ position: 'absolute', bottom: '10px', right: '-30px', width: '15px', height: '15px', background: '#DE9E36', clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)', opacity: 0.6, transform: 'rotate(45deg)' }}></div>
+              <div style={{ position: 'absolute', top: '20px', right: '-20px', width: '6px', height: '15px', background: '#DE9E36', borderRadius: '10px', transform: 'rotate(30deg)', opacity: 0.7 }}></div>
+              <div style={{ position: 'absolute', bottom: '-15px', left: '10px', width: '8px', height: '8px', background: '#DE9E36', transform: 'rotate(15deg)', opacity: 0.9 }}></div>
+            </div>
+            
+            <h2 style={{ fontSize: '2.2rem', color: '#031533', marginBottom: '0.5rem', fontFamily: 'Outfit, sans-serif' }}>Congratulations!</h2>
+            <h4 style={{ fontSize: '1.1rem', color: '#3A4A60', fontWeight: '600', marginBottom: '1rem' }}>Thank you for sharing your feedback.</h4>
+            <p style={{ color: '#5A6A80', lineHeight: '1.6', marginBottom: '2rem' }}>
+              Your review helps us grow and inspires<br/>more people to support our mission.
+            </p>
+            
+            <button onClick={() => setIsSuccessModalOpen(false)} className="btn-gold" style={{ display: 'inline-flex', width: '80%', padding: '1rem', justifyContent: 'center', fontSize: '1.1rem', borderRadius: '10px' }}>
+              Back to Reviews &rarr;
+            </button>
           </div>
         </div>
       )}
