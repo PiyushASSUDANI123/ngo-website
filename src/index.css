@@ -857,6 +857,14 @@ textarea.form-control {
 }
 
 /* Voices of Support */
+.testimonials-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
 .testimonials-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -1079,6 +1087,21 @@ textarea.form-control {
   .btn-gold, .btn-outline-dark { width: 100%; justify-content: center; }
   .impact-grid { grid-template-columns: 1fr; }
   .testimonials-grid { grid-template-columns: 1fr; }
+  .testimonials-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .testimonials-header > div {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .testimonials-header .btn-gold, .testimonials-header .btn-outline-dark {
+    width: auto;
+    flex: 0 0 auto;
+  }
+  .testimonials-header .btn-outline-dark:last-child {
+    flex: 1; /* Make 'Leave a Review' take remaining space but not squish others */
+  }
   .work-grid { grid-template-columns: 1fr 1fr; }
   .footer-grid { grid-template-columns: 1fr; }
   .footer-bottom { flex-direction: column; gap: 1rem; text-align: center; }

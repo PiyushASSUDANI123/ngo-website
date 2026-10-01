@@ -396,7 +396,7 @@ const Home = () => {
       <section className="section bg-light" style={{ backgroundColor: '#FAFCFF', borderTop: '1px solid #E2E8F0', borderBottom: '1px solid #E2E8F0' }}>
         <div style={{ maxWidth: '1300px', margin: '0 auto' }}>
           <div className="section-header">WHAT PEOPLE SAY</div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '2rem' }}>
+          <div className="testimonials-header">
             <h2 className="section-heading" style={{ marginBottom: 0 }}>Voices of <span className="gold-text">Support</span><br/>
               <span style={{ fontSize: '1.2rem', fontFamily: 'Inter, sans-serif', fontWeight: '400', color: '#5A6A80', display: 'block', marginTop: '1rem', maxWidth: '600px' }}>
                 We are grateful to our donors, volunteers, and well-wishers who believe in our vision and support our mission.
@@ -405,7 +405,7 @@ const Home = () => {
             <div style={{ display: 'flex', gap: '1rem' }}>
               <button className="btn-outline-dark" style={{ padding: '0.5rem 1rem', borderRadius: '50%' }}>&lt;</button>
               <button className="btn-gold" style={{ padding: '0.5rem 1rem', borderRadius: '50%' }}>&gt;</button>
-              <button onClick={() => setIsReviewModalOpen(true)} className="btn-outline-dark" style={{ marginLeft: '1rem' }}>
+              <button onClick={() => setIsReviewModalOpen(true)} className="btn-outline-dark" style={{ marginLeft: '1rem', whiteSpace: 'nowrap' }}>
                 Leave a Review
               </button>
             </div>
