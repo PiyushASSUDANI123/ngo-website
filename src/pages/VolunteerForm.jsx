@@ -6,23 +6,31 @@ import SEO from '../components/SEO';
 const API = import.meta.env.VITE_API_URL || 'https://envision.piyushassudani.in/api';
 
 const VolunteerForm = () => {
-  const [formData, setFormData] = useState({
-    name: '', className: '', school: '', location: '', department: '', reason: '', contact: '', experience: '', reference: ''
-  });
-  
+  const [formData, setFormData] = useState({});
   const [status, setStatus] = useState({ loading: false, message: '', type: '' });
-  const [departments, setDepartments] = useState([]);
+  
+  const [config, setConfig] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchFields = async () => {
+    const fetchConfig = async () => {
       try {
-        const res = await axios.get(`${API}/fields`);
-        setDepartments(res.data.map(field => field.name));
+        const res = await axios.get(`${API}/website/volunteer-config`);
+        setConfig(res.data);
+        
+        // Initialize form data
+        if (res.data.formFields) {
+          const initialData = {};
+          res.data.formFields.forEach(f => { initialData[f.name] = ''; });
+          setFormData(initialData);
+        }
       } catch (err) {
-        setDepartments(['Social Media', 'Writing', 'HR', 'Event Planning', 'Finance and marketing', 'Outreach']); // Fallback
+        console.error(err);
+      } finally {
+        setLoading(false);
       }
     };
-    fetchFields();
+    fetchConfig();
   }, []);
 
   const handleChange = (e) => {
@@ -33,21 +41,25 @@ const VolunteerForm = () => {
     e.preventDefault();
     setStatus({ loading: true, message: '', type: '' });
     try {
-      const payload = {
-        ...formData,
-        class: formData.className,
-        experienceLink: formData.experience
-      };
-      await axios.post(`${API}/website/applications`, payload);
+      await axios.post(`${API}/website/applications`, formData);
       setStatus({ loading: false, message: 'Application submitted successfully! We will contact you soon.', type: 'success' });
-      setFormData({
-        name: '', className: '', school: '', location: '', department: '',
-        reason: '', contact: '', experience: '', reference: ''
-      });
+      
+      // Reset form data
+      const resetData = {};
+      Object.keys(formData).forEach(k => resetData[k] = '');
+      setFormData(resetData);
     } catch (error) {
       setStatus({ loading: false, message: 'Failed to submit. Please try again later.', type: 'error' });
     }
   };
+
+  if (loading) {
+    return <div style={{ minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>Loading...</div>;
+  }
+
+  if (!config) {
+    return <div style={{ minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>Form unavailable</div>;
+  }
 
   return (
     <div style={{ background: 'var(--bg-light)', minHeight: '100vh', padding: '120px 5% 60px' }}>
@@ -61,34 +73,26 @@ const VolunteerForm = () => {
           
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6 }}>
             <h2 style={{ fontSize: '2rem', color: '#031533', marginBottom: '1rem', fontFamily: 'Playfair Display, serif', lineHeight: '1.3' }}>
-              🚨✨ WE’RE RECRUITING VOLUNTEERS! ✨🚨
+              {config.title}
             </h2>
-            <p style={{ fontSize: '1.1rem', color: '#5A6A80', marginBottom: '1.5rem' }}>
-              Hey everyone! 💌🌷<br/>
-              Want to be a part of something meaningful and create a real impact? 💫
-            </p>
+            <p style={{ fontSize: '1.1rem', color: '#5A6A80', marginBottom: '1.5rem' }} dangerouslySetInnerHTML={{ __html: config.subtitle?.replace(/\n/g, '<br/>') }}></p>
 
             <h3 style={{ fontSize: '1.3rem', color: '#DE9E36', marginBottom: '0.8rem', fontFamily: 'Playfair Display, serif' }}>
-              🌸 EnVision Foundation 🌸
+              {config.visionTitle}
             </h3>
             <p style={{ color: '#5A6A80', marginBottom: '1rem' }}>
-              is a youth-led initiative working towards empowering underprivileged children through:
+              {config.visionText}
             </p>
             <ul style={{ listStyleType: 'none', padding: 0, color: '#333', marginBottom: '2rem' }}>
-              <li style={{ marginBottom: '0.5rem' }}>📚 Equal access to education & opportunities</li>
-              <li style={{ marginBottom: '0.5rem' }}>🎨 Platforms to express creativity & imagination</li>
-              <li style={{ marginBottom: '0.5rem' }}>🤝 Mentoring, guidance & support</li>
+              {config.visionPoints && config.visionPoints.map((point, idx) => (
+                <li key={idx} style={{ marginBottom: '0.5rem' }}>{point}</li>
+              ))}
             </ul>
-
-            <h3 style={{ fontSize: '1.2rem', color: '#031533', marginBottom: '0.5rem' }}>🌍 Our Vision:</h3>
-            <p style={{ color: '#5A6A80', fontStyle: 'italic', marginBottom: '2rem', paddingLeft: '1rem', borderLeft: '3px solid #DE9E36' }}>
-              A world where every child has the support, voice, opportunities, and freedom to reach their full potential. 💗✨
-            </p>
 
             <div style={{ background: 'white', padding: '1.5rem', borderRadius: '15px', marginBottom: '2rem', boxShadow: '0 10px 30px rgba(0,0,0,0.03)' }}>
               <h3 style={{ fontSize: '1.1rem', color: '#031533', marginBottom: '1rem' }}>💼 We’re looking for passionate volunteers in:</h3>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
-                {departments.map((role, idx) => (
+                {config.formFields?.find(f => f.name === 'department')?.options?.map((role, idx) => (
                   <span key={idx} style={{ background: '#F8FAFC', padding: '5px 12px', borderRadius: '20px', fontSize: '0.9rem', color: '#5A6A80', border: '1px solid #E2E8F0' }}>
                     {role}
                   </span>
@@ -97,22 +101,8 @@ const VolunteerForm = () => {
               <p style={{ marginTop: '1rem', fontSize: '0.9rem', color: '#5A6A80' }}>✨ And many more!</p>
             </div>
 
-            <p style={{ color: '#031533', fontWeight: 'bold', marginBottom: '1.5rem' }}>
-              📍 We’re especially looking for ACTIVE NCR TEAM MEMBERS! 🚨
-            </p>
+            <p style={{ color: '#5A6A80', fontSize: '0.95rem', marginBottom: '1rem' }} dangerouslySetInnerHTML={{ __html: config.footerText?.replace(/\n/g, '<br/>') }}></p>
 
-            <p style={{ color: '#5A6A80', fontSize: '0.95rem', marginBottom: '1rem' }}>
-              Whether you have ideas, skills, creativity, energy, or simply the willingness to make a difference — there’s a place for you here! 🫶🏻🌸
-            </p>
-
-            <p style={{ color: '#5A6A80', fontSize: '0.95rem', marginBottom: '2rem' }}>
-              🌷 Don’t just scroll past — step forward, join us, and be a part of the change! 💫<br/>
-              <strong>Your time. Your skills. Your impact. ❤️</strong>
-            </p>
-
-            <div style={{ textAlign: 'center', color: '#DE9E36', fontWeight: 'bold', fontSize: '0.9rem', letterSpacing: '1px' }}>
-              🌸 EnVision Foundation — Empower. Educate. Envision. 🌸
-            </div>
           </motion.div>
         </div>
 
@@ -136,63 +126,42 @@ const VolunteerForm = () => {
 
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
               
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
-                <div>
-                  <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: '#5A6A80', fontWeight: '500' }}>Name *</label>
-                  <input type="text" name="name" required className="form-control" style={{ background: '#F8FAFC' }} value={formData.name} onChange={handleChange} placeholder="Your full name" />
+              {config.formFields && config.formFields.map((field, index) => (
+                <div key={index}>
+                  <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: '#5A6A80', fontWeight: '500' }}>
+                    {field.label} {field.required && '*'}
+                  </label>
+                  
+                  {field.type === 'textarea' ? (
+                    <textarea 
+                      name={field.name} required={field.required} 
+                      className="form-control" style={{ background: '#F8FAFC', minHeight: '100px' }} 
+                      value={formData[field.name] || ''} onChange={handleChange} 
+                      placeholder={field.placeholder}
+                    />
+                  ) : field.type === 'radio' ? (
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
+                      {field.options && field.options.map(opt => (
+                        <label key={opt} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.95rem', color: '#333' }}>
+                          <input 
+                            type="radio" name={field.name} value={opt} 
+                            checked={formData[field.name] === opt} onChange={handleChange} required={field.required} 
+                            style={{ accentColor: '#DE9E36', width: '16px', height: '16px' }} 
+                          />
+                          {opt}
+                        </label>
+                      ))}
+                    </div>
+                  ) : (
+                    <input 
+                      type={field.type || 'text'} name={field.name} required={field.required} 
+                      className="form-control" style={{ background: '#F8FAFC' }} 
+                      value={formData[field.name] || ''} onChange={handleChange} 
+                      placeholder={field.placeholder} 
+                    />
+                  )}
                 </div>
-                <div>
-                  <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: '#5A6A80', fontWeight: '500' }}>Contact *</label>
-                  <input type="tel" name="contact" required className="form-control" style={{ background: '#F8FAFC' }} value={formData.contact} onChange={handleChange} placeholder="Phone number" />
-                </div>
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
-                <div>
-                  <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: '#5A6A80', fontWeight: '500' }}>Class/Year *</label>
-                  <input type="text" name="className" required className="form-control" style={{ background: '#F8FAFC' }} value={formData.className} onChange={handleChange} placeholder="e.g. B.Tech 1st Year" />
-                </div>
-                <div>
-                  <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: '#5A6A80', fontWeight: '500' }}>Institution *</label>
-                  <input type="text" name="school" required className="form-control" style={{ background: '#F8FAFC' }} value={formData.school} onChange={handleChange} placeholder="School/College Name" />
-                </div>
-              </div>
-
-              <div>
-                <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: '#5A6A80', fontWeight: '500' }}>Location (City, State) *</label>
-                <input type="text" name="location" required className="form-control" style={{ background: '#F8FAFC' }} value={formData.location} onChange={handleChange} placeholder="Where are you from?" />
-              </div>
-
-              <div>
-                <label style={{ display: 'block', marginBottom: '1rem', fontSize: '0.9rem', color: '#5A6A80', fontWeight: '500' }}>Preferred Department *</label>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
-                  {departments.map(dept => (
-                    <label key={dept} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.95rem', color: '#333' }}>
-                      <input 
-                        type="radio" name="department" value={dept} 
-                        checked={formData.department === dept} onChange={handleChange} required 
-                        style={{ accentColor: '#DE9E36', width: '16px', height: '16px' }} 
-                      />
-                      {dept}
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: '#5A6A80', fontWeight: '500' }}>Why do you want to join EnVision? *</label>
-                <textarea name="reason" required className="form-control" style={{ background: '#F8FAFC', minHeight: '100px' }} value={formData.reason} onChange={handleChange} placeholder="Tell us your motivation..."></textarea>
-              </div>
-
-              <div>
-                <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: '#5A6A80', fontWeight: '500' }}>Past Experience / Resume Link</label>
-                <input type="url" name="experience" className="form-control" style={{ background: '#F8FAFC' }} value={formData.experience} onChange={handleChange} placeholder="Link to Drive/LinkedIn/Portfolio" />
-              </div>
-
-              <div>
-                <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: '#5A6A80', fontWeight: '500' }}>Reference Name (Optional)</label>
-                <input type="text" name="reference" className="form-control" style={{ background: '#F8FAFC' }} value={formData.reference} onChange={handleChange} placeholder="Who referred you?" />
-              </div>
+              ))}
 
               <button type="submit" className="btn-gold" style={{ width: '100%', justifyContent: 'center', marginTop: '1rem', padding: '1.2rem', fontSize: '1.1rem' }} disabled={status.loading}>
                 {status.loading ? 'Submitting...' : 'Apply Now 🚀'}
