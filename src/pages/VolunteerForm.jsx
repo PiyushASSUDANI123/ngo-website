@@ -33,7 +33,12 @@ const VolunteerForm = () => {
     e.preventDefault();
     setStatus({ loading: true, message: '', type: '' });
     try {
-      await axios.post(`${API}/website/applications`, formData);
+      const payload = {
+        ...formData,
+        class: formData.className,
+        experienceLink: formData.experience
+      };
+      await axios.post(`${API}/website/applications`, payload);
       setStatus({ loading: false, message: 'Application submitted successfully! We will contact you soon.', type: 'success' });
       setFormData({
         name: '', className: '', school: '', location: '', department: '',
@@ -83,8 +88,8 @@ const VolunteerForm = () => {
             <div style={{ background: 'white', padding: '1.5rem', borderRadius: '15px', marginBottom: '2rem', boxShadow: '0 10px 30px rgba(0,0,0,0.03)' }}>
               <h3 style={{ fontSize: '1.1rem', color: '#031533', marginBottom: '1rem' }}>💼 We’re looking for passionate volunteers in:</h3>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
-                {['📱 Social Media', '✍🏻 Writing', '💰 Finance', '🎉 Event Planning', '🤝 HR', '📢 Marketing'].map(role => (
-                  <span key={role} style={{ background: '#F8FAFC', padding: '5px 12px', borderRadius: '20px', fontSize: '0.9rem', color: '#5A6A80', border: '1px solid #E2E8F0' }}>
+                {departments.map((role, idx) => (
+                  <span key={idx} style={{ background: '#F8FAFC', padding: '5px 12px', borderRadius: '20px', fontSize: '0.9rem', color: '#5A6A80', border: '1px solid #E2E8F0' }}>
                     {role}
                   </span>
                 ))}
@@ -182,6 +187,11 @@ const VolunteerForm = () => {
               <div>
                 <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: '#5A6A80', fontWeight: '500' }}>Past Experience / Resume Link</label>
                 <input type="url" name="experience" className="form-control" style={{ background: '#F8FAFC' }} value={formData.experience} onChange={handleChange} placeholder="Link to Drive/LinkedIn/Portfolio" />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: '#5A6A80', fontWeight: '500' }}>Reference Name (Optional)</label>
+                <input type="text" name="reference" className="form-control" style={{ background: '#F8FAFC' }} value={formData.reference} onChange={handleChange} placeholder="Who referred you?" />
               </div>
 
               <button type="submit" className="btn-gold" style={{ width: '100%', justifyContent: 'center', marginTop: '1rem', padding: '1.2rem', fontSize: '1.1rem' }} disabled={status.loading}>
